@@ -1,0 +1,55 @@
+package project.employee.management;
+
+import java.io.Serializable;
+
+// DTO(Data Transfer Object) : 데이터를 전송해주는 객체
+
+public class DeptDTO implements Serializable{
+
+	private static final long serialVersionUID = -4243660468555022538L;
+	
+	int deptNo;
+	String deptName;
+	String deptLocation;
+	
+	public DeptDTO() {	}
+
+	public DeptDTO(int deptNo, String deptName, String deptLocation) {
+		super();
+		this.deptNo = deptNo;
+		this.deptName = deptName;
+		this.deptLocation = deptLocation;
+	}
+
+	public int getDeptNo() {
+		return deptNo;
+	}
+
+	public void setDeptNo(int deptNo) {
+		this.deptNo = deptNo;
+	}
+
+	public String getDeptName() {
+		return deptName;
+	}
+
+	public void setDeptName(String deptName) {
+		this.deptName = deptName;
+	}
+
+	public String getDeptLocation() {
+		return deptLocation;
+	}
+
+	public void setDeptLocation(String deptLocation) {
+		this.deptLocation = deptLocation;
+	}
+	
+	@Override
+	public String toString() {
+		return "1. 부서번호: " + deptNo + " " + 
+				"2. 부서명 :" + deptName + " " +
+				"3. 부서위치: " + deptLocation + "\n";
+	}
+	
+}

@@ -1,0 +1,125 @@
+package project.employee.management;
+
+import java.io.Serializable;
+import java.text.DecimalFormat;
+import java.util.Calendar;
+
+public class EmployeeDTO implements Serializable{
+
+	private static final long serialVersionUID = 2534699851589679551L;
+	private String id;
+	private String pwd;
+	private String name;
+	private String birth;
+	private String addr;
+	private String position;
+	private String money;
+	private String deptNo;
+	private DeptDTO dept;
+
+	public EmployeeDTO() { }
+	
+	public EmployeeDTO(String id, String pwd, String name, String birth, String addr, String position, String money,
+			String deptNo, DeptDTO dept) {
+		super();
+		this.id = id;
+		this.pwd = pwd;
+		this.name = name;
+		this.birth = birth;
+		this.addr = addr;
+		this.position = position;
+		this.money = money;
+		this.deptNo = deptNo;
+		this.dept = dept;
+
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getPwd() {
+		return pwd;
+	}
+
+	public void setPwd(String pwd) {
+		this.pwd = pwd;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getBirth() {
+		return birth;
+	}
+
+	public void setBirth(String birth) {
+		this.birth = birth;
+	}
+
+	public String getAddr() {
+		return addr;
+	}
+
+	public void setAddr(String addr) {
+		this.addr = addr;
+	}
+
+	public String getPosition() {
+		return position;
+	}
+
+	public void setPosition(String position) {
+		this.position = position;
+	}
+
+	public String getMoney() {
+		return money;
+	}
+
+	public void setMoney(String money) {
+		this.money = money;
+	}
+
+	public String getDeptNo() {
+		return deptNo;
+	}
+
+	public void setDeptNo(String deptNo) {
+		this.deptNo = deptNo;
+	}
+	
+	public DeptDTO getDept() {
+		return dept;
+	}
+
+	public void setDept(DeptDTO dept) {
+		this.dept = dept;
+	}
+
+	@Override
+	public String toString() {
+		Calendar cal = Calendar.getInstance();
+		int year = cal.get(Calendar.YEAR);
+		int age = (year - Integer.valueOf(birth.substring(0, 4))) + 1;
+		
+		DecimalFormat dcm = new DecimalFormat("###,###");
+		
+		String text = ">아이디: " + id + "\n>암호: " + pwd + "\n>사원명: " + name + "\n>생년월일: " + birth + 
+				"\n>나이: " + age + "\n>주소: " + addr + "\n>직급: " + position + "\n>급여: " + dcm.format(Integer.parseInt(money)) +
+				"\n>부서번호: " + dept.getDeptNo()
+				+ "\n>부서명: " + dept.getDeptName() + "\n>부서위치: " + dept.getDeptLocation() + "\n" ;
+		
+		return text;
+	}
+
+}

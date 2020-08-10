@@ -1,0 +1,582 @@
+package project.employee.management;
+
+import java.io.File;
+import java.util.*;
+
+public class EmployeeMngCtrl implements InterEmployeeMngCtrl {
+
+	private final String DEPT_LIST_FILENAME = "C:/iotestdata/project/employeemng/deptlist.dat";
+	private final String EMP_LIST_FILENAME = "C:/iotestdata/project/employeemng/emplist.dat";
+
+	private EmpMngSerializable serial = new EmpMngSerializable();
+
+	// 1. 부서등록 메서드
+	@SuppressWarnings("unchecked")
+	@Override
+	public void registerDept(Scanner sc) {
+
+		String deptNo = "";
+		int nDeptNo = 0;
+		String deptName = "";
+		String deptLocation = "";
+
+		System.out.println("== 부서등록하기 ==");
+
+		// ---------------------------------------------------------------//
+
+//		int nDtno = 0;
+//		do {
+//			
+//			System.out.print("> 부서번호: ");	//   10         스콜             서울시 강남구 대치동
+//			/*
+//			 * - sc.nextInt();는 입력되는 데이터의 종결자는 공백 또는 엔터이다
+//			 * - sc.nextInt();는 입력된 값이 공백이 있으면 공백을 무시를 하고서 종결자(공백 또는 엔터) 전까지의 int타입 데이터(10)만 읽어 들여서 
+//				nDtno 변수에 넣어주고 종결자(공백 또는 엔터)를 포함한 나머지 데이터(         스콜             서울시 강남구 대치동)는 버퍼에서 삭제되지 않고
+//				그대로 남아있게 된다
+//			 */
+//			try {
+//				nDtno = sc.nextInt();
+//				break;
+//			}catch (InputMismatchException e) {
+//				System.out.println("~~~~ 오류 : 부서번호는 숫자로만 입력하세요!!!");
+//				sc.nextLine();
+//			}
+//			
+//			
+//			
+//			
+//		}while(true);
+//		
+//		System.out.print("> 부서명: ");
+//		/*
+//		 * - sc.next();는 입력되는 데이터의 종결자는 공백 또는 엔터이다
+//		 * - sc.next();는 입력된 값이 공백이 있으면 공백을 무시를 하고서 종결자(공백 또는 엔터) 전까지의 String타입 데이터(10)만 읽어 들여서
+//		 * 	sDname변수에 넣어주고  종결자(공백 또는 엔터)를 포함한 나머지 데이터(             서울시 강남구 대치동)는 버퍼에서 삭제되지 않고 남아있게 된다
+//		 */
+//		String sDname = sc.next();	// "10"
+//		System.out.print("> 부서위치: ");
+//		/*
+//		 * - sc.nextLine();은 버퍼에서 종결자(엔터)를 포함한 모든 String 타입 데이터 (             서울시 강남구 대치동엔터)를 읽어들여서
+//		 * 	종결자(엔터)전까지의 String타입 데이터(             서울시 강남구 대치동)를 sLoc 변수에 넣어주고 종결자(엔터)는 버퍼에서 삭제되어진다
+//		 */
+//		String sLoc = sc.nextLine();
+//		
+//		System.out.println("~~~~ 확인용 sLoc " + nDtno);
+//		System.out.println("~~~~ 확인용 sDname " + sDname);
+//		System.out.println("~~~~ 확인용 sLoc " + sLoc);
+//		
+		// ---------------------------------------------------------------//
+
+		do {
+
+			// 유효성 검사
+			System.out.print("> 부서번호: ");
+//			sc.nextLine();
+			deptNo = sc.nextLine();
+
+			try {
+				nDeptNo = Integer.parseInt(deptNo);
+				break;
+			} catch (NumberFormatException e) {
+				System.out.println("~~~~ 오류: 부서번호는 숫자로만 입력하세요!!!\n");
+			}
+
+		} while (true);
+
+		System.out.print("> 부서명: ");
+		deptName = sc.nextLine();
+		System.out.print("> 부서위치: ");
+		deptLocation = sc.nextLine();
+
+		DeptDTO deptDTO = new DeptDTO(nDeptNo, deptName, deptLocation);
+
+		// DEPT_LIST_FILENAME 에 해당하는 파일객체 생성하기
+		File file = new File(DEPT_LIST_FILENAME);
+
+		Map<String, DeptDTO> deptMap = null;
+		int n = 0;
+
+		if (!file.exists()) { // 파일경로에 해당하는 파일이 있는지 물음 boolean(파일이 존재하지 않는 경우. 즉, 최초로 부서 등록을 하는 경우)
+			deptMap = new HashMap<>();
+			deptMap.put(String.valueOf(nDeptNo), deptDTO);
+
+			n = serial.objectToFileSave(deptMap, DEPT_LIST_FILENAME);// DEPT_LIST_FILENAME 파일에 deptDTO 객체를 저장시킨다
+		} else { // 파일이 존재하는 경우. 두번째 이후로 부서를 가입하는 경우
+			Object deptMapObj = serial.getObjectFromFile(DEPT_LIST_FILENAME);// DEPT_LIST_FILENAME 파일에 저장된 객체를 불러온다(맵의
+																				// 객체)
+			deptMap = (HashMap<String, DeptDTO>) deptMapObj; // Object 상태인 객체를 HashMap으로 형변환을 해준다
+			deptMap.put(String.valueOf(deptNo), deptDTO); // key는 부서번호, value는 부서의 정보가 담긴 deptDTO 객체(deptNo는 스트링으로 바꿔주기)
+
+			// --- 확인용 시작 --- //
+
+//			Set<String> keySet = deptMap.keySet();	// 해쉬맵의 키값을 얻어오는 메서드 (객체 내에는 모두 String 타입)
+//			for(String key : keySet) {
+//				System.out.println("확인용 key: " + key);
+//				DeptDTO dto = deptMap.get(key); // 해쉬맵의 key로 검색을 해서 DeptDTO 객체에 데이터를 넣어줌 
+//				System.out.println("확인용 dto: " + dto);
+//			}
+			/*
+			 * 1. 부서번호: 10 2. 부서명: 관리부 3. 부서위치: 서울
+			 * 
+			 * 1. 부서번호: 20 2. 부서명: 연구부 3. 부서위치: 인천
+			 */
+
+			// --- 확인용 끝 --- //
+
+			n = serial.objectToFileSave(deptMap, DEPT_LIST_FILENAME);
+
+		}
+
+		if (n == 1) {
+			System.out.println(">>> 부서등록 성공!! <<<");
+		} else {
+			System.out.println(">>> 부서등록 실패!! <<<");
+		}
+
+		System.out.println();
+
+	}
+
+	// 2. 사원등록 메서드
+	@SuppressWarnings({ "unchecked", "unused" })
+	@Override
+	public void registerEmployee(Scanner sc) {
+
+		String id = "";
+		DeptDTO dept;
+
+		while (true) {
+			System.out.print(">아이디: ");
+			id = sc.nextLine();
+
+			if (id == null || id.trim().isEmpty()) {
+				System.out.println("~~~~ 아이디를 입력하세요!!");
+				continue; // 지금은 while문 아래로 다른 코드가 없어서 상관없지만 만약 밑의 요소들까지 while문 내에 넣었다면 continue로 끊어주는 것도
+							// 좋음
+			} else if (isUseID(id)) { // true 겹침 / false 안겹침
+				System.out.println("~~~~ " + id + "는 이미 존재하므로 다른 ID를 입력하세요!!\n");
+			} else {
+				break;
+			}
+		}
+
+		System.out.print(">암호: ");
+		String pwd = sc.nextLine();
+
+		System.out.print(">사원명: ");
+		String name = sc.nextLine();
+
+		System.out.print(">생년월일(예 1994.08.04): ");
+		String birth = sc.nextLine();
+
+		System.out.print(">주소: ");
+		String addr = sc.nextLine();
+
+		System.out.print(">직급: ");
+		String position = sc.nextLine();
+
+		int nMoney = 0;
+		String money = "";
+		while (true) {
+			try {
+				System.out.print(">급여: ");
+				money = sc.nextLine();
+				nMoney = Integer.parseInt(money);
+				break;
+			} catch (Exception e) {
+				System.out.println("~~~~ 오류: 급여는 숫자로만 입력하세요!!!");
+			}
+		}
+
+		// ====== 부서번호 받기 시작 ========
+		int nDeptNo = 0;
+		String deptNo = "";
+		
+		while (true) {
+			System.out.print(">부서번호: ");
+			deptNo = sc.nextLine();
+
+			/*
+			 * 부서정보가 저장되어진 파일에 가서 모든 부서번호를 읽어온다 읽어온 부서번호들과 위에서 사용자가 입력한 부서번호가 일치하지 않는 경우라면
+			 * 존재하지 않는 부서번호임을 띄워주고 다시 부서번호를 입력받도록 하면 된다
+			 */
+
+			Object deptMapObj = serial.getObjectFromFile(DEPT_LIST_FILENAME);
+			Map<String, DeptDTO> deptMap = (Map<String, DeptDTO>) deptMapObj;
+			Set<String> keyset = deptMap.keySet();
+
+			boolean flag = false; // 받은 key값과 db의 키값이 같다면 boolean을 true로 줌
+			for (String key : keyset) {
+				if (key.equals(deptNo)) { // 키값이 같다면
+					flag = true;
+					break;
+				}
+			}
+
+			if (!flag) { // DB에 검색한 부서번호가 없을 시
+				System.out.println("~~~~ 입력하신 부서번호 " + deptNo + "은 우리회사에 존재하지 않는 부서번호 입니다\n");
+				continue; // 다시 입력하도록 밑의 내용을 무시하고 while문의 처음으로 올라감
+			}
+
+			try {
+				nDeptNo = Integer.parseInt(deptNo);
+				dept = deptMap.get(deptNo); // deptNo(부서번호) key값으로 value(DeptDTO) 값을 받아서 넣어줌
+				break;
+			} catch (NumberFormatException e) {
+				System.out.println("~~~~ 오류: 부서번호는 숫자로만 입력하세요!!!");
+			}
+		} // end of while(true)---------------------------------------------
+		// ====== 부서번호 받기 끝 =========== 
+
+		EmployeeDTO empDTO = new EmployeeDTO(id, pwd, name, birth, addr, position, money, deptNo, dept);
+
+		File file = new File(EMP_LIST_FILENAME);
+
+		ArrayList<EmployeeDTO> empList = null;
+
+		// 파일이 존재하는 경우 (파일이 존재하지 않는 경우는 isUseID에서 잡아줌)
+		Object empObject = serial.getObjectFromFile(EMP_LIST_FILENAME);
+		
+		if(empObject != null) { // 사원등록을 최초로 하는 것이 아니라 두번째 이후투터 하는 경우 
+			empList = (ArrayList<EmployeeDTO>) empObject;
+		}
+		else { // 사원등록을 최초로 하는 경우 
+			empList = new ArrayList<>();
+		}
+		
+		empList.add(empDTO);
+
+		int n = serial.objectToFileSave(empList, EMP_LIST_FILENAME);
+
+		if (n == 1) {
+			System.out.println(">>> 사원등록 성공!! <<<");
+		} else {
+			System.out.println(">>> 사원등록 실패!! <<<");
+		}
+		System.out.println("");
+
+	}// end of public void registerEmployee(Scanner sc)--------------------------------------
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean isUseID(String id) { // 해당 메서드에서 파일이 존재하지 않는 경우 파일을 새로 만들어줌 + ID검사
+
+		boolean access = false; // true 겹침 / false 안겹침
+
+		File file = new File(EMP_LIST_FILENAME);
+
+		ArrayList<EmployeeDTO> empList = new ArrayList<EmployeeDTO>();
+		Object empObject = null;
+
+		if (file.exists()) { // 존재
+			empObject = serial.getObjectFromFile(EMP_LIST_FILENAME);
+			empList = (ArrayList<EmployeeDTO>) empObject;
+
+			for (EmployeeDTO dto : empList) {
+				if (dto.getId().equals(id)) {
+					access = true;
+					break; // 겹치는 사람을 찾으면 더 이상 검색은 무의미하니 break 걸어줌
+				}
+			}
+
+		} else { // 없음
+			serial.objectToFileSave(empList, EMP_LIST_FILENAME);
+		}
+		return access;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public EmployeeDTO login(Scanner sc) {
+
+		EmployeeDTO empdto = null;
+		
+		ArrayList<EmployeeDTO> empArray = null;
+		Object empObject = serial.getObjectFromFile(EMP_LIST_FILENAME);
+		empArray = (ArrayList<EmployeeDTO>) empObject; // 파일에서 객체 받아와서 어레이리스트에 저장
+
+		// 아이디 비밀번호 받기(while)
+		while (true) {
+			System.out.println(" == 로그인 하기 == ");
+			System.out.print(">아이디: ");
+			String id = sc.nextLine();
+			System.out.print(">암호: ");
+			String pwd = sc.nextLine();
+
+			boolean flag = false;
+
+			// 아이디 패스워드 대조
+			for (EmployeeDTO emp : empArray) {
+
+				if (emp.getId().equals(id) && emp.getPwd().equals(pwd)) {
+					System.out.println(">>> 로그인 성공!!! <<<\n");
+					empdto = emp;
+					flag = true;
+					break;
+				} 
+			}// end of for----------------------------------------
+			
+			if (!flag) {
+				System.out.println(">>> 로그인 실패!!! <<<\n");
+				empdto = null;	
+			}
+			
+			break;
+		}
+		
+		return empdto;
+
+	}
+
+	// 로그인상태 메뉴
+	@Override
+	public void employeeMenu(Scanner sc, EmployeeDTO loginEmp) {
+
+		while (true) {
+
+			System.out.println(">>>> 사원관리 Menu [" + loginEmp.getName() + " 님  로그인 중..] <<<<");
+			System.out.println("1. 내정보 보기   2. 내정보 변경하기   3. 모든사원 정보보기   4. 사원검색하기   5. 사원 사직시키기   6. 나가기");
+			System.out.print("=> 메뉴번호선택: ");
+			String menu = sc.nextLine();
+
+			if (menu.equals("1")) {
+				System.out.println("\n== 내정보 ==\n" + loginEmp.toString());
+
+			} else if (menu.equals("2")) {
+				loginEmp = updateMyInfo(loginEmp, sc);
+
+			} else if (menu.equals("3")) {
+
+			} else if (menu.equals("4")) {
+
+			} else if (menu.equals("5")) {
+
+			} else if (menu.equals("6")) {
+				System.out.println();
+				return;
+			} else {
+				System.out.println("~~~~ 존재하지 않는 메뉴번호 입니다!!\n");
+			}
+
+		}
+
+	}
+	
+	// == 내정보 변경하기 == 
+		@SuppressWarnings("unchecked")
+		@Override
+		public EmployeeDTO updateMyInfo(EmployeeDTO loginEmp, Scanner sc) {  
+			
+			String money = null;
+			
+			System.out.println("\n== 내정보 변경하기 ==");
+			
+			Object empListObj = serial.getObjectFromFile(EMP_LIST_FILENAME); 
+			
+			List<EmployeeDTO> empList = (List<EmployeeDTO>) empListObj;	
+			
+			EmployeeDTO emp = null;
+			int i=0;
+			for(; i<empList.size(); i++) {
+				if(loginEmp.getId().equals(empList.get(i).getId())) {
+					emp = empList.get(i);
+					System.out.println(emp);
+					break;
+				}
+			}		
+			
+			if(emp != null) {
+				
+				System.out.print("\n▶ 암호변경: ");
+				String pwd = sc.nextLine();
+				if(pwd.trim().isEmpty()) { // 암호변경에 있어서 엔터나 공백만을 입력할 경우 암호를 변경하지 않고 원래의 암호를 그대로 사용하겠음.
+					pwd = emp.getPwd();
+				}
+				
+				System.out.print("▶ 주소변경: ");
+				String address = sc.nextLine();
+				if(address.trim().isEmpty()) { // 주소변경에 있어서 엔터나 공백만을 입력할 경우 주소를 변경하지 않고 원래의 주소를 그대로 사용하겠음.
+					address = emp.getAddr();
+				}
+				
+				System.out.print("▶ 직급변경: ");
+				String jik = sc.nextLine();
+				if(jik.trim().isEmpty()) { // 직급변경에 있어서 엔터나 공백만을 입력할 경우 직급을 변경하지 않고 원래의 직급을 그대로 사용하겠음.
+					jik = emp.getPosition();
+				}
+				
+				// 유효성 검사
+				do {
+					int nMoney = 0;
+					System.out.print(">급여변경: ");
+					String moneySub = sc.nextLine();
+					try {
+						nMoney = Integer.parseInt(moneySub);
+					} catch (NumberFormatException e) {
+						System.out.println("~~~~ 오류 : 급여는 숫자로만 입력하세요!!!\n");
+						continue;
+					}
+					money = String.valueOf(nMoney);
+					break;
+				} while (true);
+				
+				
+				boolean isOK = false;
+				do {
+					System.out.print("▷ 변경하시겠습니까?[Y/N] => ");
+					String yn = sc.nextLine();
+					if("Y".equalsIgnoreCase(yn)) {
+						isOK = true;
+						break;
+					}
+					else if("N".equalsIgnoreCase(yn)) {
+						isOK = false;
+						break;
+					}
+					else {
+						System.out.println("~~~ Y 또는 N을 입력하셔야 합니다.");
+					}
+				} while(true);
+				
+				
+				if(isOK) {
+					emp.setPwd(pwd);
+					emp.setAddr(address);
+					emp.setPosition(jik);
+					emp.setMoney(money);
+					
+					// **** ArrayList 타입인 empList 에 저장되어진 EmployeeDTO 객체 삭제하기 **** //
+					empList.remove(i);	// empList.remove(삭제할 EmployeeDTO 객체의 인덱스번호);
+		
+					empList.add(i, emp); // 삭제되어진 그 인덱스(위치)자리에 새로운 EmployeeDTO 객체를 넣어주기 
+					
+					int n = serial.objectToFileSave(empList, EMP_LIST_FILENAME);
+					
+					if(n==1) {
+						System.out.println(">>> 내정보 변경 성공!! <<<");
+						return emp;
+					}	
+					else {
+						System.out.println(">>> 내정보 변경 실패!! <<<");
+					}
+				}
+				
+				else {
+					System.out.println(">>> 내정보 변경을 취소하셨습니다. <<<");
+				}
+				
+			}
+			
+			else {
+				System.out.println("~~~~ 내정보 변경작업 실패함!!!");
+			}
+			
+			return loginEmp;
+		}// end of public void EmployeeDTO updateMyInfo(EmployeeDTO loginEmp, Scanner sc)---------------------------
+
+//	@Override
+//	public EmployeeDTO updateMyInfo(EmployeeDTO loginEmp, Scanner sc) {
+//
+//		String pwd = null;
+//		String addr = null;
+//		String position = null;
+//		String money = null;
+//		
+//		Object empListObj = serial.getObjectFromFile(EMP_LIST_FILENAME);
+//		@SuppressWarnings("unchecked")
+//		ArrayList<EmployeeDTO> empList= (ArrayList<EmployeeDTO>) empListObj;
+//				
+//		EmployeeDTO emp = null;
+//				
+//		int i = 0;
+//		for(; i < empList.size(); i++) {
+//			if(loginEmp.getId().equals(empList.get(i).getId())) {
+//				emp = empList.get(i);
+//				System.out.println(emp);
+//				break;
+//			}
+//		}
+//
+//		System.out.println("== 내정보 변경하기 ==\n");
+//		System.out.println(loginEmp.toString());
+//		
+//
+//		while (true) {
+//
+//			// 엔터 공백 있을 시 원래의 암호 사용
+//			System.out.print(">암호변경: ");
+//			String pwdSub = sc.nextLine();
+//
+//			if (pwdSub.trim().isEmpty()) {
+//				break;
+//			} else {
+//				pwd = pwdSub;
+//				break;
+//			}
+//		}
+//
+//		while (true) {
+//
+//			System.out.print(">주소변경: ");
+//			String addrSub = sc.nextLine();
+//
+//			addr = addrSub;
+//			break;
+//		}
+//
+//		while (true) {
+//			System.out.print(">직급변경: ");
+//			String positionSub = sc.nextLine();
+//
+//			if (positionSub.trim().isEmpty()) {
+//				break;
+//			} else {
+//				position = positionSub;
+//				break;
+//			}
+//		}
+//
+//		while (true) {
+//			int nMoney = 0;
+//			System.out.print(">급여변경: ");
+//			String moneySub = sc.nextLine();
+//			try {
+//				nMoney = Integer.parseInt(moneySub);
+//			} catch (NumberFormatException e) {
+//				System.out.println("~~~~ 오류 : 급여는 숫자로만 입력하세요!!!\n");
+//				continue;
+//			}
+//			money = String.valueOf(nMoney);
+//			break;
+//		}
+//
+//		while (true) {
+//			System.out.print(">변경하시겠습니까?[Y/N] => ");
+//			String or = sc.nextLine();
+//			if ("y".equalsIgnoreCase(or)) {
+//				System.out.println(">>> 내정보 변경 성공!! <<<\n");
+//				emp.setPwd(pwd);
+//				emp.setAddr(addr);
+//				emp.setPosition(position);
+//				emp.setMoney(money);
+//				
+//				empList.remove(i);
+//				
+//				empList.add(i, emp);
+//
+//
+//				serial.objectToFileSave(empList, EMP_LIST_FILENAME);
+//				
+//				return null;
+//
+//			} else if ("n".equalsIgnoreCase(or)) {
+//				System.out.println(">>> 내정보 변경 취소!! <<<\n");
+//			} else {
+//				System.out.println("~~~~ Y 또는 N을 입력하셔야 합니다");
+//				continue;
+//			}
+//
+//			return loginEmp;
+//		}
+//	}
+}
